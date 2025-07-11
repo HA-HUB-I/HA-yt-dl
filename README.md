@@ -60,6 +60,8 @@ yt_dlp_downloader:
 
 2.  **Добавете следната карта във вашия Lovelace дашборд:**
 
+![alt text](image.png)
+
 ```yaml
 type: vertical-stack
 cards:
