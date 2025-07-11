@@ -7,6 +7,7 @@ from .downloader import Downloader
 import logging
 import asyncio
 from homeassistant.helpers import discovery
+from homeassistant.helpers.template import Template
 
 DOMAIN = "yt_dlp_downloader"
 _LOGGER = logging.getLogger(__name__)
@@ -33,8 +34,17 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.data[DOMAIN] = {"downloader": downloader}
 
     def handle_download(call: ServiceCall) -> None:
-        url = call.data.get("url")
-        format = call.data.get("format", "mp3")
+        # Render templates to handle cases where they are not pre-rendered by the frontend
+        raw_url = call.data.get("url", "")
+        raw_format = call.data.get("format", "mp3")
+
+        url = Template(raw_url, hass).render(parse_result=False)
+        format = Template(raw_format, hass).render(parse_result=False)
+
+        if not url:
+            _LOGGER.error("URL is empty after template rendering. Raw value was: '%s'", raw_url)
+            return
+
         # Use thread-safe method to schedule the coroutine
         asyncio.run_coroutine_threadsafe(downloader.download_video(url, format), hass.loop)
 
