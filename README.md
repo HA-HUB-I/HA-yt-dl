@@ -53,14 +53,19 @@ yt_dlp_downloader:
 
 Можете да създадете и карта в Lovelace за по-лесно управление. Ето един пример, който използва `input_text` за URL, бутони за избор на формат и показва статуса на сваляне.
 
-1.  **Създайте `input_text` помощник (helper):**
-    *   Отидете в `Settings` > `Devices & Services` > `Helpers`.
-    *   Натиснете `Create Helper` и изберете `Text`.
-    *   Дайте му име, например `YouTube URL Input` (това ще създаде `input_text.youtube_url_input`).
+**1. Създайте `input_text` помощник (helper):**
 
-2.  **Добавете следната карта във вашия Lovelace дашборд:**
+Първо, трябва да създадете поле за въвеждане на текст, където ще поставяте URL адресите.
 
-![alt text](image.png)
+*   Отидете в `Settings` > `Devices & Services` > `Helpers`.
+*   Натиснете бутона `Create Helper` и изберете `Text` от списъка.
+*   В полето `Name` въведете име, например `YouTube URL Input`. Това име автоматично ще създаде ID-то, което ни трябва: `input_text.youtube_url_input`.
+*   Можете да добавите и икона, например `mdi:youtube`.
+*   Натиснете `Create`.
+
+**2. Добавете следната карта във вашия Lovelace дашборд:**
+
+След като имате помощника, добавете този код към вашия дашборд чрез опцията `Add Card` > `Manual`.
 
 ```yaml
 type: vertical-stack
