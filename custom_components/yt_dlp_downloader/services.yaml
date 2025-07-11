@@ -1,0 +1,9 @@
+download:
+  description: "Downloads a video from a given URL."
+  fields:
+    url:
+      description: "The URL of the video to download."
+      example: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    format:
+      description: "The desired format (mp3 or mp4)."
+      example: "mp3"

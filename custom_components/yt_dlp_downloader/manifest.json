@@ -1,0 +1,9 @@
+{
+    "domain": "yt_dlp_downloader",
+    "name": "YouTube DL Downloader",
+    "documentation": "https://github.com/youruser/yt-dlp-downloader",
+    "dependencies": [],
+    "codeowners": ["@youruser"],
+    "requirements": ["yt-dlp"],
+    "version": "0.1.0"
+}
