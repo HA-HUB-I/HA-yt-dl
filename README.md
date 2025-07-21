@@ -4,12 +4,13 @@
 
 ## Основни Функции
 
-*   **Сваляне на Видео/Аудио**: Поддържа сваляне в MP4 и MP3 формат.
-*   **Поддръжка на Плейлисти**: Можете да поставите URL на цял плейлист.
-*   **Сензор за Прогрес**: Числов сензор (`sensor.yt_dlp_downloader_progress`), който показва прогреса в проценти и е съвместим с Gauge карти.
-*   **Предотвратяване на Дубликати**: Интеграцията помни свалените файлове и ги пропуска, ако се опитате да ги свалите отново.
-*   **Интеграция с Jellyfin/Kodi**: Автоматично създава `.nfo` файлове с метаданни.
+*   **Сваляне на Видео/Аудио/Плейлисти**.
+*   **Контрол на Свалянето**: Бутон за прекратяване на текущото сваляне.
+*   **Детайлен Сензор за Прогрес**: Показва общ прогрес, име на текущия файл и брояч за плейлисти (напр. 5/21).
+*   **Вграждане на Метаданни**: Автоматично вгражда изпълнител, заглавие, албум и обложка в MP3 файловете.
+*   **Интеграция с Jellyfin/Kodi**: Автоматично създава `.nfo` файлове.
 *   **SponsorBlock**: Автоматично премахва спонсорирани сегменти.
+*   **Предотвратяване на Дубликати**.
 
 ## 1. Инсталация през HACS
 
@@ -26,9 +27,17 @@
 # configuration.yaml
 
 yt_dlp_downloader:
-  download_path: /media/videos
+  download_path: /media/music
   log_level: info
+
+  # --- Метаданни за Jellyfin/MP3 ---
   write_nfo_files: true
+  embed_metadata: true
+  embed_thumbnail: true
+  # Позволява извличане на метаданни от заглавието. Пример: "Artist - Title"
+  parse_metadata_from_title: '%(artist)s - %(title)s'
+
+  # --- Контрол на свалянето ---
   prevent_duplicates: true
   sponsorblock_remove:
     - sponsor
@@ -42,7 +51,7 @@ yt_dlp_downloader:
 **1. Създайте `input_text` помощник:**
 *   Отидете в `Settings` > `Devices & Services` > `Helpers`.
 *   Натиснете `Create Helper` и изберете `Text`.
-*   Дайте му име, например `YouTube URL Input` (това ще създаде `input_text.youtube_url_input`).
+*   Дайте му име, например `YouTube URL Input`.
 
 **2. Добавете картата в Lovelace:**
 
@@ -56,7 +65,17 @@ cards:
   - type: horizontal-stack
     cards:
       - type: button
-        name: Свали MP3
+        name: Свали MP3 (Плейлист)
+        icon: mdi:playlist-music
+        tap_action:
+          action: call-service
+          service: yt_dlp_downloader.download
+          service_data:
+            url: "{{ states('input_text.youtube_url_input') }}"
+            format: mp3
+            playlist_items: all
+      - type: button
+        name: Свали MP3 (Първата)
         icon: mdi:music
         tap_action:
           action: call-service
@@ -64,15 +83,7 @@ cards:
           service_data:
             url: "{{ states('input_text.youtube_url_input') }}"
             format: mp3
-      - type: button
-        name: Свали MP4
-        icon: mdi:movie
-        tap_action:
-          action: call-service
-          service: yt_dlp_downloader.download
-          service_data:
-            url: "{{ states('input_text.youtube_url_input') }}"
-            format: mp4
+            playlist_items: first
   - type: conditional
     conditions:
       - entity: sensor.yt_dlp_downloader_progress
@@ -83,17 +94,20 @@ cards:
         - type: gauge
           entity: sensor.yt_dlp_downloader_progress
           name: Прогрес на сваляне
-          severity:
-            green: 75
-            yellow: 50
-            red: 0
         - type: entities
           entities:
             - entity: sensor.yt_dlp_downloader_progress
               name: Статус
               attribute: status
             - entity: sensor.yt_dlp_downloader_progress
+              name: Файл
+              attribute: current_title
+            - entity: sensor.yt_dlp_downloader_progress
               name: Плейлист
-              attribute: playlist_info
-              icon: mdi:playlist-music
+              attribute: playlist_status
+        - type: button
+          name: Прекрати
+          icon: mdi:cancel
+          action: call-service
+          service: yt_dlp_downloader.cancel
 ```

@@ -13,7 +13,8 @@ class YtDlpDownloaderSensor(Entity):
         self._status = self._downloader.status
         self._progress = self._downloader.progress
         self._url = self._downloader.current_url
-        self._playlist_info = self._downloader.playlist_info
+        self._playlist_status = self._downloader.playlist_status
+        self._current_title = self._downloader.current_title
 
     @property
     def name(self):
@@ -21,20 +22,18 @@ class YtDlpDownloaderSensor(Entity):
 
     @property
     def state(self):
-        """Return the state of the sensor (the progress)."""
         return self._progress
 
     @property
     def unit_of_measurement(self):
-        """Return the unit of measurement."""
         return "%"
 
     @property
     def extra_state_attributes(self):
-        """Return the state attributes."""
         return {
             "status": self._status,
-            "playlist_info": self._playlist_info,
+            "playlist_status": self._playlist_status,
+            "current_title": self._current_title,
             "url": self._url
         }
 
@@ -49,5 +48,6 @@ class YtDlpDownloaderSensor(Entity):
         self._status = self._downloader.status
         self._progress = self._downloader.progress
         self._url = self._downloader.current_url
-        self._playlist_info = self._downloader.playlist_info
+        self._playlist_status = self._downloader.playlist_status
+        self._current_title = self._downloader.current_title
         self.async_write_ha_state()

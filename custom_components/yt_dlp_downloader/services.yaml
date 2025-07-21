@@ -1,9 +1,15 @@
 download:
-  description: "Downloads a video from a given URL."
+  description: "Сваля видео или плейлист от даден URL."
   fields:
     url:
-      description: "The URL of the video to download."
+      description: "URL на видеото или плейлиста."
       example: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
     format:
-      description: "The desired format (mp3 or mp4)."
+      description: "Желан формат (mp3 или mp4)."
       example: "mp3"
+    playlist_items:
+      description: "При подаден плейлист - сваля всички видеа (`all`) или само първото (`first`)."
+      example: "all"
+
+cancel:
+  description: "Незабавно прекратява текущото сваляне."
