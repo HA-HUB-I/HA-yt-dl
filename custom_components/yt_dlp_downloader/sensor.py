@@ -10,28 +10,32 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 class YtDlpDownloaderSensor(Entity):
     def __init__(self, downloader):
         self._downloader = downloader
-        self._state = self._downloader.status
+        self._status = self._downloader.status
         self._progress = self._downloader.progress
         self._url = self._downloader.current_url
         self._playlist_info = self._downloader.playlist_info
 
     @property
     def name(self):
-        return "YT-DLP Downloader Status"
+        return "YT-DLP Downloader Progress"
 
     @property
     def state(self):
-        # Combine status with playlist info for a more descriptive state
-        if self._playlist_info:
-            return f"{self._state} {self._playlist_info}"
-        return self._state
+        """Return the state of the sensor (the progress)."""
+        return self._progress
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return "%"
 
     @property
     def extra_state_attributes(self):
+        """Return the state attributes."""
         return {
-            "progress": self._progress,
-            "url": self._url,
-            "playlist_info": self._playlist_info
+            "status": self._status,
+            "playlist_info": self._playlist_info,
+            "url": self._url
         }
 
     @property
@@ -42,7 +46,7 @@ class YtDlpDownloaderSensor(Entity):
         async_dispatcher_connect(self.hass, "yt_dlp_downloader_update", self.async_update_state)
 
     async def async_update_state(self):
-        self._state = self._downloader.status
+        self._status = self._downloader.status
         self._progress = self._downloader.progress
         self._url = self._downloader.current_url
         self._playlist_info = self._downloader.playlist_info
