@@ -13,6 +13,7 @@ class YtDlpDownloaderSensor(Entity):
         self._state = self._downloader.status
         self._progress = self._downloader.progress
         self._url = self._downloader.current_url
+        self._playlist_info = self._downloader.playlist_info
 
     @property
     def name(self):
@@ -20,13 +21,17 @@ class YtDlpDownloaderSensor(Entity):
 
     @property
     def state(self):
+        # Combine status with playlist info for a more descriptive state
+        if self._playlist_info:
+            return f"{self._state} {self._playlist_info}"
         return self._state
 
     @property
     def extra_state_attributes(self):
         return {
             "progress": self._progress,
-            "url": self._url
+            "url": self._url,
+            "playlist_info": self._playlist_info
         }
 
     @property
@@ -40,4 +45,5 @@ class YtDlpDownloaderSensor(Entity):
         self._state = self._downloader.status
         self._progress = self._downloader.progress
         self._url = self._downloader.current_url
+        self._playlist_info = self._downloader.playlist_info
         self.async_write_ha_state()

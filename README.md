@@ -1,71 +1,65 @@
-
 # YT-DLP Downloader - Home Assistant Integration
 
 Това е персонализирана интеграция за Home Assistant, която ви позволява да сваляте аудио или видео файлове от YouTube и други поддържани сайтове чрез `yt-dlp`.
 
-## Нови Функции
+## Основни Функции
 
-*   **Сензор за статус**: Интеграцията вече предоставя сензор (`sensor.yt_dlp_downloader_status`), който показва текущото състояние на свалянето (`idle`, `Downloading`, `Finished`, `Error`).
-*   **Прогрес**: Сензорът има атрибут `progress`, който показва прогреса на сваляне в проценти.
-*   **Контрол на логирането**: Можете да настроите нивото на логиране в конфигурацията.
+*   **Сваляне на Видео/Аудио**: Поддържа сваляне в MP4 и MP3 формат.
+*   **Поддръжка на Плейлисти**: Можете да поставите URL на цял плейлист.
+*   **Сензор за Статус**: Показва прогреса на сваляне в реално време (`Downloading (Video 3 of 15)`).
+*   **Предотвратяване на Дубликати**: Интеграцията помни свалените файлове и ги пропуска, ако се опитате да ги свалите отново.
+*   **Интеграция с Jellyfin/Kodi**: Автоматично създава `.nfo` файлове с метаданни, които медийни сървъри могат да използват.
+*   **SponsorBlock**: Автоматично премахва спонсорирани сегменти, интро и други от видеата.
 
-## 1. Качване в GitHub
-
-За да използвате тази интеграция с HACS, първо трябва да я качите във вашето собствено GitHub хранилище.
-
-1.  Създайте ново **публично** хранилище (repository) във вашия GitHub акаунт.
-2.  Качете всички файлове от този проект (`custom_components` директорията, `hacs.json` и този `README.md`) във вашето ново хранилище.
-3.  **Важно**: Отворете файла `custom_components/yt_dlp_downloader/manifest.json` и променете `"@youruser"` с вашето потребителско име в GitHub.
 
 ## 2. Инсталация през HACS
 
-След като хранилището е създадено в GitHub, следвайте тези стъпки в Home Assistant:
-
-1.  Отидете в `HACS` > `Integrations`.
-2.  Натиснете бутона с трите точки в горния десен ъгъл и изберете `Custom repositories`.
-3.  В полето `Repository` поставете URL адреса на вашето GitHub хранилище.
-4.  В полето `Category` изберете `Integration`.
-5.  Натиснете `Add`.
-6.  Вашата нова интеграция ще се появи в списъка. Натиснете върху нея и след това `Install`.
+1.  В Home Assistant отидете в `HACS` > `Integrations`.
+2.  Изберете `Custom repositories` от менюто.
+3.  Поставете URL адреса на вашето GitHub хранилище, изберете категория `Integration` и натиснете `Add`.
+4.  Намерете новата интеграция в списъка и натиснете `Install`.
 
 ## 3. Конфигурация
 
-След инсталацията е необходимо да конфигурирате интеграцията, като добавите следния код във вашия `configuration.yaml` файл:
+Добавете следния код във вашия `configuration.yaml` файл:
 
 ```yaml
 # configuration.yaml
 
 yt_dlp_downloader:
-  download_path: /media
-  log_level: debug # по избор, може да бъде 'info' или 'debug'
-```
+  # Задължително: Пътят, където ще се запазват файловете.
+  download_path: /media/videos
 
-*   `download_path`: Директорията, в която ще се запазват файловете (препоръчително `/media`).
-*   `log_level`: Ако е `debug`, в логовете на Home Assistant ще се записва пълна информация от `yt-dlp`, което е полезно при проблеми.
+  # --- Опционални настройки ---
+
+  # Ниво на логване. Може да бъде 'info' или 'debug' за повече детайли.
+  log_level: info
+
+  # Ако е 'true', ще се създават .nfo файлове, съвместими с Jellyfin/Kodi.
+  write_nfo_files: true
+
+  # Ако е 'true', интеграцията ще помни свалените файлове и ще ги пропуска.
+  prevent_duplicates: true
+
+  # Списък с категории на SponsorBlock за автоматично премахване.
+  # Възможни стойности: sponsor, intro, outro, selfpromo, interaction, music_offtopic
+  sponsorblock_remove:
+    - sponsor
+    - selfpromo
+```
 
 След като добавите конфигурацията, **рестартирайте Home Assistant**.
 
-## 4. Тестване и Lovelace Карта
+## 4. Lovelace Карта
+За да добавите карта в Lovelace, която позволява въвеждане на YouTube URL и сваляне на видео/аудио, следвайте тези стъпки:
+![alt text](image.png)
 
-Можете да тествате услугата от `Developer Tools` > `Services`, както е описано в предишната версия.
-
-### Lovelace Карта
-
-Можете да създадете и карта в Lovelace за по-лесно управление. Ето един пример, който използва `input_text` за URL, бутони за избор на формат и показва статуса на сваляне.
-
-**1. Създайте `input_text` помощник (helper):**
-
-Първо, трябва да създадете поле за въвеждане на текст, където ще поставяте URL адресите.
-
+**1. Създайте `input_text` помощник:**
 *   Отидете в `Settings` > `Devices & Services` > `Helpers`.
-*   Натиснете бутона `Create Helper` и изберете `Text` от списъка.
-*   В полето `Name` въведете име, например `YouTube URL Input`. Това име автоматично ще създаде ID-то, което ни трябва: `input_text.youtube_url_input`.
-*   Можете да добавите и икона, например `mdi:youtube`.
-*   Натиснете `Create`.
+*   Натиснете `Create Helper` и изберете `Text`.
+*   Дайте му име, например `YouTube URL Input` (това ще създаде `input_text.youtube_url_input`).
 
-**2. Добавете следната карта във вашия Lovelace дашборд:**
-
-След като имате помощника, добавете този код към вашия дашборд чрез опцията `Add Card` > `Manual`.
+**2. Добавете картата в Lovelace:**
 
 ```yaml
 type: vertical-stack
@@ -73,7 +67,7 @@ cards:
   - type: entities
     entities:
       - entity: input_text.youtube_url_input
-        name: YouTube URL
+        name: YouTube/Playlist URL
   - type: horizontal-stack
     cards:
       - type: button
@@ -100,13 +94,17 @@ cards:
   - type: conditional
     conditions:
       - entity: sensor.yt_dlp_downloader_status
-        state: Downloading
+        state_not: "idle"
+      - entity: sensor.yt_dlp_downloader_status
+        state_not: "Finished"
     card:
       type: gauge
       entity: sensor.yt_dlp_downloader_status
       attribute: progress
       name: Прогрес
       unit: '%'
+      severity:
+        green: 75
+        yellow: 50
+        red: 0
 ```
-
-Тази конфигурация ще ви даде поле за въвеждане на URL, два бутона за сваляне (MP3/MP4) и ще показва статуса и прогреса на свалянето.
